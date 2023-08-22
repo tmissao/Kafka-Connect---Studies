@@ -14,6 +14,12 @@ It can be divided into the following sections:
 
 - [Kafka Connect Course](https://www.udemy.com/course/kafka-connect)
 - [Confluent Connectors](https://www.confluent.io/hub/)
+- [Configuring Connectors](https://kafka.apache.org/documentation.html#connect_configuring)
 - [Landoop Include Connectors](https://github.com/lensesio/fast-data-dev#enable-additional-connectors)
 - [Kafka Converters and Serialization](https://www.confluent.io/blog/kafka-connect-deep-dive-converters-serialization-explained/#json-schemas)
 - [Kafka Transformation](https://www.confluent.io/blog/kafka-connect-single-message-transformation-tutorial-with-examples/)
+
+
+
+kafka-console-producer --broker-list localhost:9092 --topic dbserver1-signal --property parse.key=true --property key.separator=@
+dbserver1@{"type":"execute-snapshot","data": {"data-collections": ["inventory.products"], "type": "incremental"}}
