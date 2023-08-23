@@ -1,0 +1,24 @@
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{
+   "name":"mongo-connector",
+   "config":{
+      "connector.class":"com.mongodb.kafka.connect.MongoSinkConnector",
+      "tasks.max":"1",
+      "topics":"dbserver1.inventory.customers,dbserver1.inventory.products,dbserver1.inventory.addresses",
+      "transforms":"unwrap,renameField",
+      "transforms.unwrap.type":"io.debezium.transforms.ExtractNewRecordState",
+      "transforms.unwrap.add.fields":"table,db",
+      "transforms.unwrap.delete.handling.mode":"rewrite",
+      "transforms.renameField.type":"org.apache.kafka.connect.transforms.ReplaceField$Key",
+      "transforms.renameField.renames":"id:_id",
+      "connection.uri":"mongodb://root:mongo@mongo:27017",
+      "database":"default-database",
+      "collection":"default-collection",
+      "namespace.mapper":"com.mongodb.kafka.connect.sink.namespace.mapping.FieldPathNamespaceMapper",
+      "namespace.mapper.value.database.field":"__db",
+      "namespace.mapper.value.collection.field":"__table",
+      "document.id.strategy":"com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInKeyStrategy",
+      "post.processor.chain":"com.mongodb.kafka.connect.sink.processor.BlockListValueProjector",
+      "value.projection.type":"BlockList",
+      "value.projection.list":"__db,__table"
+   }
+}'
