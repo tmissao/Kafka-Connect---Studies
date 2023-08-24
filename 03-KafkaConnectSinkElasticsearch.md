@@ -77,7 +77,8 @@ Here there some important steps to highlight, debezium message extract contains 
     "id": 1004,
     "first_name": "Anne Marie",
     "last_name": "Kretchmar",
-    "email": "annek@noanswer.org"
+    "email": "annek@noanswer.org",
+    "__deleted": "false",
 }
 ```
 

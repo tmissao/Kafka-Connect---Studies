@@ -9,6 +9,7 @@ It can be divided into the following sections:
 - [Extracting data from Database with Debezium](./02-KafkaConnectSourceDebezium.md)
 - [Moving data to ElasticSearch](./03-KafkaConnectSinkElasticsearch.md)
 - [Moving data to MongoDB](./04-KafkaConnectSinkMongoDB.md)
+- [Monving data to Postgres Using JDBC Connector](/05-KafkaConnectSinkJDBC.md)
 - [Kafka Connect with Azure Eventhub](./06-KafkaConnectAzureEventhub.md)
 
 ## Results
