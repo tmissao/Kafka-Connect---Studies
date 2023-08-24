@@ -8,7 +8,8 @@ It can be divided into the following sections:
 - [Kafka Connect Source](./01-KafkaConnectSource.md)
 - [Extracting data from Database with Debezium](./02-KafkaConnectSourceDebezium.md)
 - [Moving data to ElasticSearch](./03-KafkaConnectSinkElasticsearch.md)
-- [Kafka Connect with Azure Eventhub](./04-KafkaConnectAzureEventhub.md)
+- [Moving data to MongoDB](./04-KafkaConnectSinkMongoDB.md)
+- [Kafka Connect with Azure Eventhub](./06-KafkaConnectAzureEventhub.md)
 
 ## Results
 The goal of this study is to extract data from a datasource using kafka source connector, moving it to kafka, and then push this data to another datasource using kafka sink connector
