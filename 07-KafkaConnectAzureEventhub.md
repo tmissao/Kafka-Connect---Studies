@@ -43,15 +43,15 @@ internal.value.converter.schemas.enable=false
 # required EH Kafka security settings
 security.protocol=SASL_SSL
 sasl.mechanism=PLAIN
-sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://missaokafkaconnect.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=GgdSdFWxDHrDnHLv1Z61ko1PDqATdrpkX+AEhD995cA=";
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://missaokafkaconnect.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=GgdSdFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5cA=";
 
 producer.security.protocol=SASL_SSL
 producer.sasl.mechanism=PLAIN
-producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://missaokafkaconnect.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=GgdSdFWxDHrDnHLv1Z61ko1PDqATdrpkX+AEhD995cA=";
+producer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://missaokafkaconnect.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=GgdSdFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5cA=";
 
 consumer.security.protocol=SASL_SSL
 consumer.sasl.mechanism=PLAIN
-consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://missaokafkaconnect.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=GgdSdFWxDHrDnHLv1Z61ko1PDqATdrpkX+AEhD995cA=";
+consumer.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="$ConnectionString" password="Endpoint=sb://missaokafkaconnect.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=GgdSdFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5cA=";
 
 # path to the libs directory within the Kafka release, use pwd command to get it
 plugin.path=/home/tmissao/git/kafka-connect-studies/artifacts/code/kafka/libs 
