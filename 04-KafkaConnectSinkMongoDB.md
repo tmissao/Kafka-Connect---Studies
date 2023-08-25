@@ -1,10 +1,10 @@
 # Kafka Connect Sink MongoDB
 
-Once data is in Kafka topic, it is necessary to move it to a new destination, usually to a new database, application or data lake. For this demo, we will move data to an elasticsearch cluster using [Mongo Sink Connector](https://www.confluent.io/hub/mongodb/kafka-connect-mongodb)
+Once data is in Kafka topic, it is necessary to move it to a new destination, usually to a new database, application or data lake. For this demo, we will move data to an mongodb using [Mongo Sink Connector](https://www.confluent.io/hub/mongodb/kafka-connect-mongodb)
 
 So, this is the goal:
 
-![Debezium Source Connector](./artifacts/pictures/04-MongoSinkConnector.png)
+![Mongo Sink Connector](./artifacts/pictures/04-MongoSinkConnector.png)
 
 In order to setup this environment follow this steps:
 
@@ -19,7 +19,7 @@ docker-compose up -d kafka-cluster mysql mongo
 
 3. `Create Mongo Kafka Connect Sink Task` - This connector will consume all data from `dbserver1.inventory.customers`, `dbserver1.inventory.products` and `dbserver1.inventory.addresses` topics sending them to Mongo
 
-Here there some important steps to highlight, debezium message extract contains a lot of information since it is a log, and for mongo data it is necessary just the field `after` in the message produced from debezium. So we will configure the Mongo Connector to use the transformation [New Record State Extraction](https://debezium.io/documentation/reference/2.3/transformations/event-flattening.html). Which will modify the message dumped into mongo to contain just the value inside `after` field. Furthermore, mongo requires two aditional fields in order to know in which database and collection to persist the data. So, we also customize the `ExtractNewRecordState` to include de database and table information into the record value through the command `"transforms.unwrap.add.fields":"table,db"`
+There are some important steps to highlight, debezium message extracted contains a lot of information since it is a log, and for mongo data it is necessary just the field `after` in the message produced from debezium. So we will configure the Mongo Connector to use the transformation [New Record State Extraction](https://debezium.io/documentation/reference/2.3/transformations/event-flattening.html). Which will modify the message dumped into mongo to contain just the value inside `after` field. Furthermore, mongo requires two aditional fields in order to know in which database and collection to persist the data. So, we also customize the `ExtractNewRecordState` to include de database and table information into the record value through the command `"transforms.unwrap.add.fields":"table,db"`
 
 ```bash
 # Prior New Record State Extraction

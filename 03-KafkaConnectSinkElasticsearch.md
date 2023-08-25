@@ -21,7 +21,7 @@ docker-compose up -d
 
 3. `Create ElasticSearch Kafka Connect Sink Task` - This connector will consume all data from `dbserver1.inventory.customers` topic and send it to Elasticsearch
 
-Here there some important steps to highlight, debezium message extract contains a lot of information since it is a log, and for elasticsearch data it is necessary just the field `after` in the message produced from debezium. So we will configure the ElasticSearch Connector to use the transformation [New Record State Extraction](https://debezium.io/documentation/reference/2.3/transformations/event-flattening.html). Which will modify the message dumped into elasticsearch to contain just the value inside `after` field. 
+There are some important steps to highlight, debezium message extracted contains a lot of information since it is a log, and for elasticsearch data it is necessary just the field `after` in the message produced from debezium. So we will configure the ElasticSearch Connector to use the transformation [New Record State Extraction](https://debezium.io/documentation/reference/2.3/transformations/event-flattening.html). Which will modify the message dumped into elasticsearch to contain just the value inside `after` field. 
 
 ```bash
 # Prior New Record State Extraction

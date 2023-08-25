@@ -19,7 +19,7 @@ docker-compose up --force-recreate -d kafka-cluster mysql postgres
 
 3. `Create JDBC Kafka Connect Sink Task` - This connector will consume all data from `dbserver1.inventory.customers`, `dbserver1.inventory.products` and `dbserver1.inventory.addresses` topics sending them to Postgres
 
-Here there some important steps to highlight, debezium message extract contains a lot of information since it is a log, and for postgres data it is necessary just the field `after` in the message produced from debezium. 
+There are some important steps to highlight, debezium message extracted contains a lot of information since it is a log, and for postgres data it is necessary just the field `after` in the message produced from debezium. 
 
 So we will configure the JDBC Connector to use the transformation [New Record State Extraction](https://debezium.io/documentation/reference/2.3/transformations/event-flattening.html). Which will modify the message dumped into Postgres to contain just the value inside `after` field.
 

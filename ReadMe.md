@@ -10,7 +10,8 @@ It can be divided into the following sections:
 - [Moving data to ElasticSearch](./03-KafkaConnectSinkElasticsearch.md)
 - [Moving data to MongoDB](./04-KafkaConnectSinkMongoDB.md)
 - [Monving data to Postgres Using JDBC Connector](/05-KafkaConnectSinkJDBC.md)
-- [Kafka Connect with Azure Eventhub](./06-KafkaConnectAzureEventhub.md)
+- [Monving data to Azure Blob Connector](/06-KafkaConnectSinkAzureBlob.md)
+- [Kafka Connect with Azure Eventhub](./07-KafkaConnectAzureEventhub.md)
 
 ## Results
 The goal of this study is to extract data from a datasource using kafka source connector, moving it to kafka, and then push this data to another datasource using kafka sink connector
