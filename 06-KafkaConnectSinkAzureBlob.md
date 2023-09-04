@@ -159,7 +159,7 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
       "transforms.renameField.type":"org.apache.kafka.connect.transforms.ReplaceField$Value",
       "transforms.renameField.renames":"__ts_ms:timestamp,__deleted:deleted",
       "azblob.account.name":"kedablobstorage",
-      "azblob.account.key":"fxfhlrUi50rlJpyB/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/+AStl9iR9A==",
+      "azblob.account.key":"fxfhlrUi50rlJpyB/3vXJs9jg8DlVr3Hn4hzeW8ITFDD203evXqIgWg2/TBRuPaTziPxGPzmGg9/+AStl9iR9A==",
       "azblob.container.name":"kafka-connect",
       "format.class":"io.confluent.connect.azure.blob.format.json.JsonFormat",
       "topics.dir":"topics",

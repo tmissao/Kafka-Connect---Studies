@@ -119,7 +119,22 @@ schema.ignore=true
 ```
 
 ```bash
-curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{ "name": "elasticsearch-connector", "config": { "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector", "transforms.unwrap.delete.handling.mode": "rewrite", "tasks.max": "2", "topics": "dbserver1.inventory.customers", "transforms.extractId.type": "org.apache.kafka.connect.transforms.ExtractField$Key", "transforms": "unwrap,extractId", "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState", "transforms.extractId.field": "id", "connection.url": "http://elasticsearch:9200", "key.ignore": "false", "schema.ignore": "true" }}'
+curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{
+   "name":"elasticsearch-connector",
+   "config":{
+      "connector.class":"io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+      "transforms.unwrap.delete.handling.mode":"rewrite",
+      "tasks.max":"2",
+      "topics":"dbserver1.inventory.customers,dbserver1.inventory.products,dbserver1.inventory.addresses",
+      "transforms.extractId.type":"org.apache.kafka.connect.transforms.ExtractField$Key",
+      "transforms":"unwrap,extractId",
+      "transforms.unwrap.type":"io.debezium.transforms.ExtractNewRecordState",
+      "transforms.extractId.field":"id",
+      "connection.url":"http://elasticsearch:9200",
+      "key.ignore":"false",
+      "schema.ignore":"true"
+   }
+}'
 ```
 
 4. `Check the data on Elasticsearch` - You can access Kibana on "localhost:5602" to explore the data, or use follow command:

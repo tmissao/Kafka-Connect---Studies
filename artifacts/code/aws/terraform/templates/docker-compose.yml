@@ -1,0 +1,19 @@
+services:
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8080:8080
+    environment:
+      KAFKA_CLUSTERS_0_NAME: demo
+      # KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${BOOTSTRAP_BROKERS}
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${BOOTSTRAP_BROKERS_IAM}
+      KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: SASL_SSL
+      # KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: SCRAM-SHA-512
+      # KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: org.apache.kafka.common.security.scram.ScramLoginModule required username="${USERNAME}" password="${PASSWORD}";
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: AWS_MSK_IAM
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: 'software.amazon.msk.auth.iam.IAMLoginModule required;'
+      KAFKA_CLUSTERS_0_PROPERTIES_SASL_CLIENT_CALLBACK_HANDLER_CLASS: 'software.amazon.msk.auth.iam.IAMClientCallbackHandler'
+      KAFKA_CLUSTERS_0_METRICS_PORT: 11001
+      KAFKA_CLUSTERS_0_METRICS_TYPE: PROMETHEUS
+      DYNAMIC_CONFIG_ENABLED: 'true'
