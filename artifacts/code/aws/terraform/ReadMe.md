@@ -91,3 +91,14 @@ kafka-topics.sh --bootstrap-server $BROKERS --list --command-config /bitnami/kaf
 ```
 
 <img src="../../../pictures/08-MSK-Monitoring.gif" width=1080 >
+
+
+## References
+---
+
+- [MSK with SASL/SCRAM](https://docs.aws.amazon.com/msk/latest/developerguide/msk-password.html)
+- [MSK with SASL/IAM](https://docs.aws.amazon.com/msk/latest/developerguide/iam-access-control.html)
+- [Kafka ACL Tutorial](https://supergloo.com/kafka-tutorials/kafka-acl/)
+- [Confluent Authorization Documentation](https://docs.confluent.io/platform/current/kafka/authorization.html)
+- [Kafka UI](https://github.com/provectus/kafka-ui)
+- [Kafka UI Required Permissions](https://docs.kafka-ui.provectus.io/configuration/permissions/required-acls)
