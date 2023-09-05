@@ -29,7 +29,7 @@ variable "kafka" {
             instance_type = "kafka.t3.small"
             connectivity_info = {
                 public_access = {
-                   type = "SERVICE_PROVIDED_EIPS" // "DISABLED"
+                   type = "SERVICE_PROVIDED_EIPS" 
                 }
             }
             storage_info = {
