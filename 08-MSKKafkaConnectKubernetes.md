@@ -2,7 +2,7 @@
 
 This project intends to provision all underline infrastructure for [AWS MSK (Amazon Kafka)](https://aws.amazon.com/msk/) enabling authenticated access using SASL/SCRAM and Amazon IAM, an EC2 running [Kafka-UI](https://github.com/provectus/kafka-ui) for monitore the Kafka cluster. And a Kubenetes Cluster with [Strimzi Operator](https://strimzi.io/) in order to deploy a Kafka Connect Cluster.
 
-![MSK](../../../pictures/08-MSK.png)
+![MSK](./artifacts/pictures/08-MSK.png)
 
 This project creates 3 users:
 
@@ -98,7 +98,7 @@ kafka-topics.sh --bootstrap-server $BROKERS --list --command-config /bitnami/kaf
 
 Access the EC2 Public IP (`vm_kafka_client.public_ip`) on port 8080
 
-<img src="../../../pictures/08-MSK-Monitoring.gif" width=1080 >
+![Kafka UI](/artifacts/pictures/08-MSK-Monitoring.gif)
 
 ### Testing the Kafka Connect Cluster
 
