@@ -1,4 +1,4 @@
-# Provision AWS Kafka Cluster MSK and Kafka Connect on Kubernetes
+# Provision AWS Kafka Cluster MSK
 
 This project intends to provision all underline infrastructure for [AWS MSK (Amazon Kafka)](https://aws.amazon.com/msk/) enabling authenticated access using SASL/SCRAM and Amazon IAM, an EC2 running [Kafka-UI](https://github.com/provectus/kafka-ui) for monitore the Kafka cluster. And a Kubenetes Cluster with [Strimzi Operator](https://strimzi.io/) in order to deploy a Kafka Connect Cluster.
 
