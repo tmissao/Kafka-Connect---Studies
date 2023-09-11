@@ -1,0 +1,2 @@
+connect:
+  clusterName: k8s-connect-cluster

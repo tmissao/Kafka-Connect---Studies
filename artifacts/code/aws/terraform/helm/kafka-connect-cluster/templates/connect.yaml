@@ -1,0 +1,103 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: {{ .Values.connect.clusterName }}
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 3.4.0
+  replicas: 2
+  image: "{{ .Values.connect.dockerRegistry }}:{{ .Values.connect.imageTag }}"
+  bootstrapServers: {{ .Values.connect.bootstrapServers }}
+  authentication:
+    type: scram-sha-512
+    username: {{ .Values.connect.username }}
+    passwordSecret:
+      secretName: kafka-connect-secret
+      password: password
+  tls:
+    trustedCertificates: []
+  config:
+    group.id: {{ .Values.connect.clusterName }}
+    offset.storage.topic: "__{{ .Values.connect.clusterName }}-offsets"
+    config.storage.topic: "__{{ .Values.connect.clusterName }}-configs"
+    status.storage.topic: "__{{ .Values.connect.clusterName }}-status"
+    config.storage.replication.factor: 3
+    offset.storage.replication.factor: 3
+    status.storage.replication.factor: 3
+    config.storage.partitions: 1
+    offset.storage.partitions: 50
+    status.storage.partitions: 10
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: true
+    value.converter.schemas.enable: true
+    internal.key.converter: org.apache.kafka.connect.json.JsonConverter
+    internal.value.converter: org.apache.kafka.connect.json.JsonConverter
+    internal.key.converter.schemas.enable: false
+    internal.value.converter.schemas.enable: false
+  template:
+    buildConfig:
+      metadata:
+        labels:
+          {{- include "kafka-connect-cluster.labels" . | nindent 10 }}
+        annotations:
+          {{- toYaml .Values.podAnnotations | nindent 10 }}
+    buildPod:
+      metadata:
+        labels:
+          {{- include "kafka-connect-cluster.labels" . | nindent 10 }}
+        annotations:
+          {{- toYaml .Values.podAnnotations | nindent 10 }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    deployment:
+      metadata:
+        labels:
+          {{- include "kafka-connect-cluster.labels" . | nindent 10 }}
+        annotations:
+          {{- toYaml .Values.podAnnotations | nindent 10 }}
+    pod:
+      metadata:
+        labels:
+          {{- include "kafka-connect-cluster.labels" . | nindent 10 }}
+        annotations:
+          {{- toYaml .Values.podAnnotations | nindent 10 }}
+      affinity:
+        {{- if .Values.nodeSelector }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            {{- range $key, $value := .Values.nodeSelector }}
+            - matchExpressions:
+              - key: {{ $key }}
+                operator: In
+                values:
+                - {{ $value }}
+            {{- end }}
+        {{- end }}
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/instance
+                      operator: In
+                      values:
+                        - {{ .Values.connect.clusterName }}
+                topologyKey: "topology.kubernetes.io/zone"
+              weight: 100
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/instance
+                    operator: In
+                    values:
+                      - {{ .Values.connect.clusterName }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

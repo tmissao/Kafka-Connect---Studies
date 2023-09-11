@@ -1,0 +1,10 @@
+podAnnotations:
+  fluentbit.io/exclude: 'true'
+
+connect:
+  imageTag: ${KAFKA_CONNECT_IMAGE_TAG}
+  clusterName: k8s-connect-cluster
+  bootstrapServers: ${BOOTSTRAP_BROKERS}
+  username: ${USERNAME}
+  passwordBase64: ${PASSWORD_BASE64}
+  dockerRegistry: ${DOCKER_REGISTRY_URL}

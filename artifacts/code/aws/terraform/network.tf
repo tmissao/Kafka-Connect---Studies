@@ -9,6 +9,7 @@ module "vpc" {
   enable_vpn_gateway = var.vpc.enable_vpn_gateway 
   single_nat_gateway = var.vpc.single_nat_gateway
   one_nat_gateway_per_az = var.vpc.one_nat_gateway_per_az
+  map_public_ip_on_launch = true
   tags = var.tags
 }
 

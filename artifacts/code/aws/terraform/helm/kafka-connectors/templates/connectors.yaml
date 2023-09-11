@@ -1,0 +1,29 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: filestream-license-source-connector
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: org.apache.kafka.connect.file.FileStreamSourceConnector
+  tasksMax: 2
+  autoRestart:
+    enabled: true
+  config:
+    file: "/opt/kafka/LICENSE"
+    topic: license-topic
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: filestream-license-synk-connector
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: org.apache.kafka.connect.file.FileStreamSinkConnector
+  tasksMax: 2
+  autoRestart:
+    enabled: true
+  config:
+    file: "/tmp/sync-license"
+    topics: license-topic

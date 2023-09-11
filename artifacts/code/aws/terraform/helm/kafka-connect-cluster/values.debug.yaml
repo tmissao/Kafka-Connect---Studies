@@ -1,0 +1,19 @@
+podAnnotations:
+  fluentbit.io/exclude: 'true'
+
+connect:
+  imageTag: manual
+  clusterName: k8s-connect-cluster
+  bootstrapServers: b-1.kafkademo.j6z2ue.c3.kafka.us-east-1.amazonaws.com:9096,b-2.kafkademo.j6z2ue.c3.kafka.us-east-1.amazonaws.com:9096,b-3.kafkademo.j6z2ue.c3.kafka.us-east-1.amazonaws.com:9096
+  username: kafka-connect
+  passwordBase64: RVRKQmRKSmlpR2dULk5fWkNFUzJLSjlCQEZWczFAYU8=
+  dockerRegistry: 088509040218.dkr.ecr.us-east-1.amazonaws.com/kafka/kafka-connect
+
+nodeSelector:
+  app-role: "general"
+
+tolerations:
+- key: "scalesetpriority"
+  operator: "Equal"  
+  value: "spot"
+  effect: "NoSchedule"

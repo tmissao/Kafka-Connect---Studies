@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 variable "aws_region" {
     default = "us-east-1"
 }
@@ -23,13 +25,13 @@ variable "vpc" {
 variable "kafka" {
     default = {
         cluster_name = "kafka-demo"
-        kafka_version = "2.8.1"
+        kafka_version = "3.4.0"
         number_of_broker_nodes = 3
         broker_node_group_info = {
             instance_type = "kafka.t3.small"
             connectivity_info = {
                 public_access = {
-                   type = "SERVICE_PROVIDED_EIPS" 
+                   type = "DISABLED" 
                 }
             }
             storage_info = {
@@ -82,6 +84,31 @@ variable "kafka_connect_user" {
 
 variable "kafka_monitoring_user" {
     default = "kafka-monitoring"
+}
+
+variable "ecr" {
+    default = {
+        name = "kafka/kafka-connect"
+    }
+}
+
+variable "eks" {
+    default = {
+        cluster_name = "demo-cluster"
+        cluster_version = "1.27"
+        managed_node_groups = {
+            workers = {
+                min_size     = 1
+                max_size     = 10
+                desired_size = 2
+                instance_types = ["t3.large"]
+                capacity_type  = "SPOT"
+                iam_role_additional_policies = {
+                    AmazonEC2ContainerRegistryPowerUser = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+                }
+            }
+        }
+    }
 }
 
 variable "tags" {
