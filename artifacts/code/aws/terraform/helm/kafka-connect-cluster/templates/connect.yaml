@@ -18,6 +18,8 @@ spec:
   tls:
     trustedCertificates: []
   config:
+    config.providers: secrets
+    config.providers.secrets.class: io.strimzi.kafka.KubernetesSecretConfigProvider
     group.id: {{ .Values.connect.clusterName }}
     offset.storage.topic: "__{{ .Values.connect.clusterName }}-offsets"
     config.storage.topic: "__{{ .Values.connect.clusterName }}-configs"

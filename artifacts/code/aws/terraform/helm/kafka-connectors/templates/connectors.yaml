@@ -1,22 +1,22 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
-  name: filestream-license-source-connector
+  name: filestream-source-connector
   labels:
     strimzi.io/cluster: {{ .Values.connect.clusterName }}
 spec:
   class: org.apache.kafka.connect.file.FileStreamSourceConnector
-  tasksMax: 2
+  tasksMax: 1
   autoRestart:
     enabled: true
   config:
     file: "/opt/kafka/LICENSE"
-    topic: license-topic
+    topic: kafka-license-topic
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
-  name: filestream-license-synk-connector
+  name: filestream-synk-connector
   labels:
     strimzi.io/cluster: {{ .Values.connect.clusterName }}
 spec:
@@ -26,4 +26,36 @@ spec:
     enabled: true
   config:
     file: "/tmp/sync-license"
-    topics: license-topic
+    topics: kafka-license-topic
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: aws-license-topic-sink-connector
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: io.confluent.connect.s3.S3SinkConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    topics: kafka-license-topic
+    format.class: io.confluent.connect.s3.format.json.JsonFormat
+    flush.size: 100
+    partition.duration.ms: 60000
+    rotate.interval.ms: 60000
+    rotate.schedule.interval.ms: 600000
+    s3.bucket.name: {{ .Values.connect.s3BucketName }}
+    s3.region: {{ .Values.connect.s3Region }}
+    aws.access.key.id: {{ .Values.connect.awsAccessKeyId }}
+    aws.secret.access.key: {{ .Values.connect.awsSecretAccessKey }}
+    storage.class: io.confluent.connect.s3.storage.S3Storage
+    topics.dir: data
+    partitioner.class: io.confluent.connect.storage.partitioner.TimeBasedPartitioner
+    path.format: YYYY/MM/dd/HH/mm
+    locale: pt_BR
+    timezone: UTC
+    timestamp.extractor: Wallclock

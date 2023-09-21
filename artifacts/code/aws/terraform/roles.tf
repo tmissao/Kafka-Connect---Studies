@@ -85,3 +85,44 @@ resource "aws_iam_instance_profile" "instance_profile" {
   name = "allow_ec2_to_manage_msk_demo"
   role = aws_iam_role.ec2_iam_role.name
 }
+
+data "aws_iam_policy_document" "kafka" {
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "s3:ListBucket",
+      "s3:GetBucketLocation"
+    ]
+    resources = [
+      aws_s3_bucket.this.arn,
+    ]
+  }
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:AbortMultipartUpload",
+      "s3:PutObjectTagging"
+    ]
+    resources = [
+      aws_s3_bucket.this.arn,
+      "${aws_s3_bucket.this.arn}/*"
+    ]
+  }
+  statement {
+    effect    = "Allow"
+    actions   = [
+      "s3:ListAllMyBuckets"
+    ]
+    resources = [
+      "arn:aws:s3:::*"
+    ]
+  }
+}
+
+resource "aws_iam_user_policy" "kafka" {
+  name   = "AllowKafkatoWriteonS3"
+  user   = aws_iam_user.kafka.name
+  policy = data.aws_iam_policy_document.kafka.json
+}

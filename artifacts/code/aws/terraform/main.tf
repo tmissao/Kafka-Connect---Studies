@@ -169,11 +169,61 @@ resource "null_resource" "build_kafka_connect_docker_image" {
     environment = {
       ECR_REGISTRY_REGION = var.aws_region
       ECR_REGISTRY_URL    = aws_ecr_repository.this.repository_url
-      TAG = "latest"
+      TAG = "apicurio"
       DOCKERFILE_PATH   = "${path.module}/docker/kafka-connect"
     }
   }
   depends_on = [
     aws_ecr_repository_policy.this
   ]
+}
+
+resource "aws_iam_user" "kafka" {
+  name = "kafka"
+  path = "/"
+  tags = var.tags
+}
+
+resource "aws_iam_access_key" "kafka" {
+  user = aws_iam_user.kafka.name
+}
+
+resource "aws_security_group" "rds" {
+  name        = "RDS SG"
+  description = "Allow Connection with Postgres"
+  vpc_id      = module.vpc.vpc_id
+  ingress {
+    description = "Postgres"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = var.tags
+}
+
+resource "aws_db_subnet_group" "this" {
+  name       = "main"
+  subnet_ids = module.vpc.public_subnets
+  tags = var.tags
+}
+resource "aws_db_instance" "this" {
+  allocated_storage    = 20
+  identifier = "demodb"
+  db_name              = "generaldb"
+  engine               = "postgres"
+  engine_version       = "14"
+  instance_class       = "db.t3.micro"
+  username             = "adminuser"
+  password             = "adminuser123X"
+  db_subnet_group_name = aws_db_subnet_group.this.name
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  skip_final_snapshot  = true
+  publicly_accessible = true
 }

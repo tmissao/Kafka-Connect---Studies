@@ -42,3 +42,11 @@ output "kafka_users" {
         }
     }
 }
+
+output "aws_kafka_access_key" {
+    sensitive = true
+    value = {
+        id = aws_iam_access_key.kafka.id
+        secret = aws_iam_access_key.kafka.secret
+    }
+}

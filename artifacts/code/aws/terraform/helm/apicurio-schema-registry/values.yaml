@@ -1,0 +1,4 @@
+name: ${APP_NAME}
+bootstrapServers: ${BOOTSTRAP_BROKERS}
+kafkaUsername: ${KAFKA_USERNAME}
+kafkaPassword: ${KAFKA_PASSWORD}

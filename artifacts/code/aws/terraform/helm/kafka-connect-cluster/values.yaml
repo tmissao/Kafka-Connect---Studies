@@ -3,7 +3,7 @@ podAnnotations:
 
 connect:
   imageTag: ${KAFKA_CONNECT_IMAGE_TAG}
-  clusterName: k8s-connect-cluster
+  clusterName: ${KAFKA_CONNECT_CLUSTER_NAME}
   bootstrapServers: ${BOOTSTRAP_BROKERS}
   username: ${USERNAME}
   passwordBase64: ${PASSWORD_BASE64}

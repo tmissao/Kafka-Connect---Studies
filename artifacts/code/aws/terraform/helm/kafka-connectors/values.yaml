@@ -1,2 +1,6 @@
 connect:
   clusterName: k8s-connect-cluster
+  awsAccessKeyId: ${AWS_ACCESS_KEY_ID}
+  awsSecretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+  s3BucketName: ${S3_BUCKET_NAME}
+  s3Region: ${S3_REGION}

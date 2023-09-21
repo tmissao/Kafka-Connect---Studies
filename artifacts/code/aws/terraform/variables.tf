@@ -111,6 +111,18 @@ variable "eks" {
     }
 }
 
+variable "kafka_connect_cluster" {
+    default = {
+        name = "k8s-connect-cluster"
+    }
+}
+
+variable "schema_registry" {
+    default = {
+        name = "schema-registry"
+    }
+}
+
 variable "tags" {
     default = {
         scope = "demo"

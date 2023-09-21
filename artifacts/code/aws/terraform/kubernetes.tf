@@ -46,11 +46,12 @@ resource "helm_release" "kakfa_connect_cluster" {
   version           = "1.0.1"
   values = [
         templatefile("${path.module}/helm/kafka-connect-cluster/values.yaml", {
+            KAFKA_CONNECT_CLUSTER_NAME = var.kafka_connect_cluster.name
             BOOTSTRAP_BROKERS = aws_msk_cluster.this.bootstrap_brokers_sasl_scram
             USERNAME = var.kafka_connect_user
             PASSWORD_BASE64 = nonsensitive(base64encode(random_password.kafka_connect.result))
             DOCKER_REGISTRY_URL = aws_ecr_repository.this.repository_url
-            KAFKA_CONNECT_IMAGE_TAG = "latest"
+            KAFKA_CONNECT_IMAGE_TAG = "apicurio"
         })
   ]
   depends_on = [ 
@@ -67,11 +68,74 @@ resource "helm_release" "kakfa_connectors" {
   timeout   = 600
   name = "kafka-connectors"
   chart      = "./${path.module}/helm/kafka-connectors"
-  version           = "1.0.0"
+  version           = "1.0.1"
   values = [
-        templatefile("${path.module}/helm/kafka-connectors/values.yaml", {})
+        templatefile("${path.module}/helm/kafka-connectors/values.yaml", {
+          AWS_ACCESS_KEY_ID = aws_iam_access_key.kafka.id
+          AWS_SECRET_ACCESS_KEY = aws_iam_access_key.kafka.secret
+          S3_BUCKET_NAME = aws_s3_bucket.this.bucket
+          S3_REGION = var.aws_region
+        })
   ]
   depends_on = [ 
         helm_release.kakfa_connect_cluster,
    ]
+}
+
+resource "helm_release" "apicurio" {
+  namespace = kubernetes_namespace.kafka.metadata.0.name
+  wait      = true
+  force_update = true
+  recreate_pods = true
+  timeout   = 600
+  name = "apicurio-schema-registry"
+  chart      = "./${path.module}/helm/apicurio-schema-registry"
+  version           = "1.0.0"
+  values = [
+        templatefile("${path.module}/helm/apicurio-schema-registry/values.yaml", {
+          APP_NAME = var.schema_registry.name
+          BOOTSTRAP_BROKERS = aws_msk_cluster.this.bootstrap_brokers_sasl_scram
+          KAFKA_USERNAME = var.kafka_connect_user
+          KAFKA_PASSWORD = random_password.kafka_connect.result
+        })
+  ]
+}
+
+resource "kubernetes_config_map_v1" "kafka_ui_cm" {
+  metadata {
+    name = "kafka-ui"
+    namespace = kubernetes_namespace.kafka.metadata.0.name
+  }
+
+  data = {
+    KAFKA_CLUSTERS_0_NAME = var.kafka.cluster_name
+    KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS = aws_msk_cluster.this.bootstrap_brokers_sasl_scram
+    KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL = "SASL_SSL"
+    KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM = "SCRAM-SHA-512"
+    KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG= "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"${var.kafka_manager_user}\" password=\"${random_password.kafka_manager.result}\";"
+    KAFKA_CLUSTERS_0_METRICS_PORT = 11001
+    KAFKA_CLUSTERS_0_METRICS_TYPE = "PROMETHEUS"
+    KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME = var.kafka_connect_cluster.name
+    KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS = "http://${var.kafka_connect_cluster.name}-connect-api:8083"
+    # Although Apicurio API is /apis/registry/v2 it is necessary to use the confluent schema registry compatibility api
+    KAFKA_CLUSTERS_0_SCHEMAREGISTRY = "http://${var.schema_registry.name}:8080/apis/ccompat/v6"
+    DYNAMIC_CONFIG_ENABLED = "true"
+  }
+}
+
+resource "helm_release" "kafka_ui" {
+  namespace = kubernetes_namespace.kafka.metadata.0.name
+  wait      = true
+  force_update = true
+  recreate_pods = true
+  timeout   = 600
+  name = "kafka-ui"
+  repository = "https://provectus.github.io/kafka-ui-charts"
+  chart      = "kafka-ui"
+  version    = "0.7.5"
+  values = [
+        templatefile("${path.module}/helm/kafka-ui/values.yaml", {
+          CONFIGMAP_NAME = kubernetes_config_map_v1.kafka_ui_cm.metadata.0.name
+        })
+  ]
 }

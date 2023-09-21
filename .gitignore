@@ -2,3 +2,5 @@ artifacts/code/kafka/**
 
 **/.terraform/
 **/terraform.tfstate*
+
+test/**

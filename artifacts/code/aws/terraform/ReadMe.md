@@ -141,3 +141,7 @@ kubectl get KafkaConnectors -n kafka
 - [Strimzi Add Custom Plugins](https://strimzi.io/docs/operators/latest/configuring.html#plugins)
 - [Strimzi Add Custom Plugins Docker](https://strimzi.io/docs/operators/latest/full/deploying.html#creating-new-image-from-base-str)
 - [Strimzi Deploying Connectors](https://strimzi.io/docs/operators/latest/deploying#proc-deploying-kafkaconnector-str)
+- [Strimzi Load Configuration from Secrets](https://strimzi.io/docs/operators/latest/deploying#assembly-loading-config-with-providers-str)
+- [Apicurio Schema Registry Client Configuration](https://www.apicur.io/registry/docs/apicurio-registry/2.4.x/getting-started/assembly-configuring-kafka-client-serdes.html)
+- [Apicurio with Debezium](https://debezium.io/documentation/reference/stable/configuration/avro.html#overview-of-deploying-a-debezium-connector-that-uses-avro-serialization)
+- [Apicurio Examples](https://github.com/debezium/debezium-examples/blob/main/tutorial/register-mysql-apicurio-converter-avro.json)
