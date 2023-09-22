@@ -1,7 +1,7 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
-  name: filestream-source-connector
+  name: filestream-source-connector-final
   labels:
     strimzi.io/cluster: {{ .Values.connect.clusterName }}
 spec:
@@ -11,12 +11,54 @@ spec:
     enabled: true
   config:
     file: "/opt/kafka/LICENSE"
-    topic: kafka-license-topic
+    topic: kafka-license-topic-json
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
-  name: filestream-synk-connector
+  name: filestream-source-connector-jsonschema-final
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: org.apache.kafka.connect.file.FileStreamSourceConnector
+  tasksMax: 1
+  autoRestart:
+    enabled: true
+  config:
+    value.converter: io.apicurio.registry.utils.converter.ExtJsonConverter
+    value.converter.apicurio.registry.url: http://schema-registry:8080/apis/registry/v2
+    value.converter.apicurio.registry.auto-register: true
+    value.converter.apicurio.registry.as-confluent: true
+    value.converter.apicurio.registry.find-latest: true
+    value.converter.apicurio.registry.headers.enabled: false
+    file: "/opt/kafka/LICENSE"
+    topic:  kafka-license-topic-json-schemaregistry
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: filestream-source-connector-avroschema-final
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: org.apache.kafka.connect.file.FileStreamSourceConnector
+  tasksMax: 1
+  autoRestart:
+    enabled: true
+  config:
+    value.converter: io.apicurio.registry.utils.converter.AvroConverter
+    value.converter.apicurio.registry.url: http://schema-registry:8080/apis/registry/v2
+    value.converter.apicurio.registry.auto-register: true
+    value.converter.apicurio.registry.as-confluent: true
+    value.converter.apicurio.registry.find-latest: true
+    value.converter.apicurio.registry.headers.enabled: false
+    file: "/opt/kafka/LICENSE"
+    topic:  kafka-license-topic-avro-schemaregistry
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: filestream-sink-connector-final
   labels:
     strimzi.io/cluster: {{ .Values.connect.clusterName }}
 spec:
@@ -26,12 +68,54 @@ spec:
     enabled: true
   config:
     file: "/tmp/sync-license"
-    topics: kafka-license-topic
+    topics: kafka-license-topic-json
 ---
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaConnector
 metadata:
-  name: aws-license-topic-sink-connector
+  name: filestream-sink-connector-jsonschema-final
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: org.apache.kafka.connect.file.FileStreamSinkConnector
+  tasksMax: 2
+  autoRestart:
+    enabled: true
+  config:
+    value.converter: io.apicurio.registry.utils.converter.ExtJsonConverter
+    value.converter.apicurio.registry.url: http://schema-registry:8080/apis/registry/v2
+    value.converter.apicurio.registry.auto-register: true
+    value.converter.apicurio.registry.as-confluent: true
+    value.converter.apicurio.registry.find-latest: true
+    value.converter.apicurio.registry.headers.enabled: false
+    file: "/tmp/sync-license-jsonschema"
+    topics: kafka-license-topic-json-schemaregistry
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: filestream-sink-connector-avroschema-final
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: org.apache.kafka.connect.file.FileStreamSinkConnector
+  tasksMax: 2
+  autoRestart:
+    enabled: true
+  config:
+    value.converter: io.apicurio.registry.utils.converter.AvroConverter
+    value.converter.apicurio.registry.url: http://schema-registry:8080/apis/registry/v2
+    value.converter.apicurio.registry.auto-register: true
+    value.converter.apicurio.registry.as-confluent: true
+    value.converter.apicurio.registry.find-latest: true
+    value.converter.apicurio.registry.headers.enabled: false
+    file: "/tmp/sync-license-avroschema"
+    topics: kafka-license-topic-avro-schemaregistry
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: aws-license-topic-sink-json-final
   labels:
     strimzi.io/cluster: {{ .Values.connect.clusterName }}
 spec:
@@ -42,7 +126,7 @@ spec:
     enabled: true
   config:
     tasks.max: 1
-    topics: kafka-license-topic
+    topics: kafka-license-topic-json
     format.class: io.confluent.connect.s3.format.json.JsonFormat
     flush.size: 100
     partition.duration.ms: 60000
@@ -50,8 +134,84 @@ spec:
     rotate.schedule.interval.ms: 600000
     s3.bucket.name: {{ .Values.connect.s3BucketName }}
     s3.region: {{ .Values.connect.s3Region }}
-    aws.access.key.id: {{ .Values.connect.awsAccessKeyId }}
-    aws.secret.access.key: {{ .Values.connect.awsSecretAccessKey }}
+    aws.access.key.id: ${secrets:kafka/aws-credentials:accessKeyId}
+    aws.secret.access.key: ${secrets:kafka/aws-credentials:secretAccessKey}
+    storage.class: io.confluent.connect.s3.storage.S3Storage
+    topics.dir: data
+    partitioner.class: io.confluent.connect.storage.partitioner.TimeBasedPartitioner
+    path.format: YYYY/MM/dd/HH/mm
+    locale: pt_BR
+    timezone: UTC
+    timestamp.extractor: Wallclock
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: aws-license-topic-sink-jsonschema-final
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: io.confluent.connect.s3.S3SinkConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    topics: kafka-license-topic-json-schemaregistry
+    value.converter: io.apicurio.registry.utils.converter.ExtJsonConverter
+    value.converter.apicurio.registry.url: http://schema-registry:8080/apis/registry/v2
+    value.converter.apicurio.registry.auto-register: true
+    value.converter.apicurio.registry.as-confluent: true
+    value.converter.apicurio.registry.find-latest: true
+    value.converter.apicurio.registry.headers.enabled: false
+    format.class: io.confluent.connect.s3.format.json.JsonFormat
+    flush.size: 100
+    partition.duration.ms: 60000
+    rotate.interval.ms: 60000
+    rotate.schedule.interval.ms: 600000
+    s3.bucket.name: {{ .Values.connect.s3BucketName }}
+    s3.region: {{ .Values.connect.s3Region }}
+    aws.access.key.id: ${secrets:kafka/aws-credentials:accessKeyId}
+    aws.secret.access.key: ${secrets:kafka/aws-credentials:secretAccessKey}
+    storage.class: io.confluent.connect.s3.storage.S3Storage
+    topics.dir: data
+    partitioner.class: io.confluent.connect.storage.partitioner.TimeBasedPartitioner
+    path.format: YYYY/MM/dd/HH/mm
+    locale: pt_BR
+    timezone: UTC
+    timestamp.extractor: Wallclock
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: aws-license-topic-sink-avro-final
+  labels:
+    strimzi.io/cluster: {{ .Values.connect.clusterName }}
+spec:
+  class: io.confluent.connect.s3.S3SinkConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    topics: kafka-license-topic-avro-schemaregistry
+    value.converter: io.apicurio.registry.utils.converter.AvroConverter
+    value.converter.apicurio.registry.url: http://schema-registry:8080/apis/registry/v2
+    value.converter.apicurio.registry.auto-register: true
+    value.converter.apicurio.registry.as-confluent: true
+    value.converter.apicurio.registry.find-latest: true
+    value.converter.apicurio.registry.headers.enabled: false
+    format.class: io.confluent.connect.s3.format.json.JsonFormat
+    flush.size: 100
+    partition.duration.ms: 60000
+    rotate.interval.ms: 60000
+    rotate.schedule.interval.ms: 600000
+    s3.bucket.name: {{ .Values.connect.s3BucketName }}
+    s3.region: {{ .Values.connect.s3Region }}
+    aws.access.key.id: ${secrets:kafka/aws-credentials:accessKeyId}
+    aws.secret.access.key: ${secrets:kafka/aws-credentials:secretAccessKey}
     storage.class: io.confluent.connect.s3.storage.S3Storage
     topics.dir: data
     partitioner.class: io.confluent.connect.storage.partitioner.TimeBasedPartitioner

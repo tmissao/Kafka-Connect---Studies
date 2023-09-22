@@ -96,9 +96,19 @@ kafka-topics.sh --bootstrap-server $BROKERS --list --command-config /bitnami/kaf
 
 ### Testing the Kafka-UI
 
-Access the EC2 Public IP (`vm_kafka_client.public_ip`) on port 8080
+Access the Kafka-UI using the kube-forward command
+```bash
+# login on cluster Kubernetes
+# aws eks update-kubeconfig --name <cluster-name> --region <region>
+aws eks update-kubeconfig --name demo-cluster --region us-east-1
 
-<img src="../../../pictures/08-MSK-Monitoring.gif" width=1080 >
+#kubectl port-forward service/<service-name> <localhost-port>:<service-port> -n kafka
+kubectl port-forward service/kafka-ui 8080:80 -n kafka
+
+# Open the address localhost:8080 on your web browser
+```
+
+<img src="../../../pictures/08-MSK-Monitoring2.gif" width=1080 >
 
 ### Testing the Kafka Connect Cluster
 

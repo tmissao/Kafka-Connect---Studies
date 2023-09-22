@@ -15,22 +15,35 @@ systemctl enable docker.service
 systemctl start docker.service
 
 echo "#########################################################################################"
-echo "#                             Running Kafka UI                                          #"
+echo "#                           Installing Kafka Client                                     #"
 echo "#########################################################################################"
-
-echo "${DOCKER_COMPOSE_CONF}" | base64 --decode > ./docker-compose.yml
-docker-compose -p demo up -d
+yum -y install java-11
+wget https://archive.apache.org/dist/kafka/${KAFKA_VERSION}/kafka_2.13-${KAFKA_VERSION}.tgz
+tar -xzf kafka_2.13-${KAFKA_VERSION}.tgz
+mv kafka_2.13-${KAFKA_VERSION} kafka
+cd kafka/libs
+wget https://github.com/aws/aws-msk-iam-auth/releases/download/v1.1.9/aws-msk-iam-auth-1.1.9-all.jar 
+cd ../bin
+echo "${KAFKA_CLIENT_PROPERTIES}" | base64 --decode > ./client.properties
 
 echo "#########################################################################################"
 echo "#                             Running Kafka Client                                      #"
 echo "#########################################################################################"
 
-echo "${KAFKA_CLIENT_PROPERTIES}" | base64 --decode > ./manager.properties
+echo "${KAFKA_CLIENT_PROPERTIES}" | base64 --decode > ./client.properties
 
 echo "#########################################################################################"
 echo "#                                 Setting ACLs                                          #"
 echo "#########################################################################################"
 
-docker container run -v $(pwd)/manager.properties:/bitnami/kafka/config/manager.properties bitnami/kafka:2.8.1 bash -c "kafka-acls.sh --bootstrap-server ${BOOTSTRAP_BROKERS} --add --allow-principal User:${KAFKA_MANAGER_USER} --operation All --allow-host '*' --cluster --topic '*' --group '*' --command-config /bitnami/kafka/config/manager.properties"
-docker container run -v $(pwd)/manager.properties:/bitnami/kafka/config/manager.properties bitnami/kafka:2.8.1 bash -c "kafka-acls.sh --bootstrap-server ${BOOTSTRAP_BROKERS} --add --allow-principal User:${KAFKA_CONNECT_USER} --consumer --producer --allow-host '*' --topic '*' --group '*' --command-config /bitnami/kafka/config/manager.properties"
-docker container run -v $(pwd)/manager.properties:/bitnami/kafka/config/manager.properties bitnami/kafka:2.8.1 bash -c "kafka-acls.sh --bootstrap-server ${BOOTSTRAP_BROKERS} --add --allow-principal User:${KAFKA_MONITORING_USER} --consumer --allow-host '*' --topic '*' --group '*' --command-config /bitnami/kafka/config/manager.properties"
+./kafka-acls.sh --bootstrap-server ${BOOTSTRAP_BROKERS} --add \
+  --allow-principal User:${KAFKA_MANAGER_USER} --operation All --allow-host '*' \
+  --cluster --topic '*' --group '*' --command-config ./client.properties
+
+./kafka-acls.sh --bootstrap-server ${BOOTSTRAP_BROKERS} --add \
+  --allow-principal User:${KAFKA_CONNECT_USER} --consumer --producer --allow-host '*' \
+  --topic '*' --group '*' --command-config ./client.properties
+
+./kafka-acls.sh --bootstrap-server ${BOOTSTRAP_BROKERS} --add \
+  --allow-principal User:${KAFKA_MONITORING_USER} --consumer --allow-host '*' \
+  --topic '*' --group '*' --command-config ./client.properties

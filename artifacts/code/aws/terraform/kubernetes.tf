@@ -8,17 +8,47 @@ resource "kubernetes_namespace" "kafka" {
   }
 }
 
-resource "kubernetes_namespace" "nginx" {
+resource "kubernetes_secret_v1" "aws_credentials" {
   metadata {
-    name = "nginx"
+    name = "aws-credentials"
+    namespace = kubernetes_namespace.kafka.metadata.0.name
+  }
+  data = {
+    accessKeyId = aws_iam_access_key.kafka.id
+    secretAccessKey = aws_iam_access_key.kafka.secret
   }
 }
 
-resource "helm_release" "nginx" {
-  name       = "nginx"
-  repository = "https://kubernetes.github.io/ingress-nginx"
-  chart      = "ingress-nginx"
-  namespace  = one(kubernetes_namespace.nginx.metadata).name
+resource "kubernetes_role_v1" "allow_kafka_connect_read_secrets" {
+  metadata {
+    name = "allow-kafka-connect-read-screts"
+    namespace = kubernetes_namespace.kafka.metadata.0.name
+  }
+  rule {
+    api_groups     = [""]
+    resources      = ["secrets"]
+    verbs          = ["get", "list"]
+  }
+}
+
+resource "kubernetes_role_binding" "allow_kafka_connect_read_secrets" {
+  metadata {
+    name      = "kafka-connect-read-secrets"
+    namespace = kubernetes_namespace.kafka.metadata.0.name
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "Role"
+    name      = kubernetes_role_v1.allow_kafka_connect_read_secrets.metadata.0.name
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "${var.kafka_connect_cluster.name}-connect"
+    namespace = kubernetes_namespace.kafka.metadata.0.name
+  }
+  depends_on = [ 
+    helm_release.kakfa_connect_cluster
+  ]
 }
 
 resource "helm_release" "strimzi" {
@@ -71,6 +101,7 @@ resource "helm_release" "kakfa_connectors" {
   version           = "1.0.1"
   values = [
         templatefile("${path.module}/helm/kafka-connectors/values.yaml", {
+          KAFKA_CONNECT_CLUSTER_NAME = var.kafka_connect_cluster.name
           AWS_ACCESS_KEY_ID = aws_iam_access_key.kafka.id
           AWS_SECRET_ACCESS_KEY = aws_iam_access_key.kafka.secret
           S3_BUCKET_NAME = aws_s3_bucket.this.bucket
@@ -78,7 +109,7 @@ resource "helm_release" "kakfa_connectors" {
         })
   ]
   depends_on = [ 
-        helm_release.kakfa_connect_cluster,
+        helm_release.kakfa_connect_cluster
    ]
 }
 
@@ -118,7 +149,7 @@ resource "kubernetes_config_map_v1" "kafka_ui_cm" {
     KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME = var.kafka_connect_cluster.name
     KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS = "http://${var.kafka_connect_cluster.name}-connect-api:8083"
     # Although Apicurio API is /apis/registry/v2 it is necessary to use the confluent schema registry compatibility api
-    KAFKA_CLUSTERS_0_SCHEMAREGISTRY = "http://${var.schema_registry.name}:8080/apis/ccompat/v6"
+    KAFKA_CLUSTERS_0_SCHEMAREGISTRY = "http://${var.schema_registry.name}:8080/apis/ccompat/v7"
     DYNAMIC_CONFIG_ENABLED = "true"
   }
 }

@@ -28,17 +28,9 @@ data "template_file" "init" {
 data "template_file" "shell-script" {
     template = file("${path.module}/scripts/setup.sh")
     vars = {
-        DOCKER_COMPOSE_CONF = base64encode((templatefile("${path.module}/templates/docker-compose.yml", {
-          BOOTSTRAP_BROKERS = aws_msk_cluster.this.bootstrap_brokers_sasl_scram
-          BOOTSTRAP_BROKERS_IAM = aws_msk_cluster.this.bootstrap_brokers_sasl_iam
-          USERNAME = var.kafka_monitoring_user
-          PASSWORD = random_password.kafka_monitoring.result
-        })))
-        KAFKA_CLIENT_PROPERTIES = base64encode((templatefile("${path.module}/templates/kafka-client.properties", {
-          USERNAME = var.kafka_manager_user
-          PASSWORD = random_password.kafka_manager.result
-        })))
-        BOOTSTRAP_BROKERS = aws_msk_cluster.this.bootstrap_brokers_sasl_scram
+        KAFKA_VERSION = var.kafka.kafka_version
+        KAFKA_CLIENT_PROPERTIES = base64encode((templatefile("${path.module}/templates/kafka-client.properties", {})))
+        BOOTSTRAP_BROKERS = aws_msk_cluster.this.bootstrap_brokers_sasl_iam
         KAFKA_MANAGER_USER = var.kafka_manager_user
         KAFKA_CONNECT_USER = var.kafka_connect_user
         KAFKA_MONITORING_USER = var.kafka_monitoring_user
