@@ -1,0 +1,68 @@
+# https://debezium.io/documentation/reference/stable/connectors/sqlserver.html
+
+# Required Procedures
+
+# Enable CDC on Database
+#
+# USE <Database Name>
+# GO
+# EXEC sys.sp_cdc_enable_db
+# GO
+
+# Enable CDC on Table
+#
+# USE <Database Name>
+# GO
+# EXEC sys.sp_cdc_enable_table
+# @source_schema = N'dbo',
+# @source_name   = N'MyTable', 
+# @role_name     = N'NULL',  
+# @supports_net_changes = 0
+# GO
+
+# Required Table
+# CREATE TABLE dbo.debezium_signal (id VARCHAR(42) PRIMARY KEY, type VARCHAR(32) NOT NULL, data VARCHAR(2048) NULL);
+
+# EXEC sys.sp_cdc_enable_table
+# @source_schema = N'dbo',
+# @source_name   = N'debezium_signal', 
+# @role_name     = N'NULL',
+# @supports_net_changes = 0
+
+# To Perform Manual Snapshot
+# INSERT INTO dbo.debezium_signal (id, type, data) VALUES('ad-hoc-1', 'execute-snapshot', '{"data-collections": ["remuneration_debezium.dbo.StoreInfo"], "type":"incremental"}');
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: mssql-source-connector
+  labels:
+    strimzi.io/cluster: k8s-connect-cluster
+spec:
+  class: io.debezium.connector.sqlserver.SqlServerConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    schema.name.adjustment.mode: avro
+    database.hostname: <hostname>
+    database.port: 1433
+    database.user: <user>
+    database.password: <password>
+    database.names: <database>
+    schema.include.list: dbo
+    table.include.list: dbo.TenantInfo,dbo.StoreInfo
+    topic.prefix: remuneration
+    snapshot.mode: initial
+    signal.enabled.channels: source
+    signal.data.collection: <database>.dbo.debezium_signal
+    schema.history.internal.kafka.bootstrap.servers: <bootstrapservers>
+    schema.history.internal.store.only.captured.tables.ddl: false
+    schema.history.internal.producer.security.protocol: SASL_SSL
+    schema.history.internal.producer.sasl.mechanism: SCRAM-SHA-512
+    schema.history.internal.producer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="XXXX" password="XXXXXX";
+    schema.history.internal.consumer.security.protocol: SASL_SSL
+    schema.history.internal.consumer.sasl.mechanism: SCRAM-SHA-512
+    schema.history.internal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="XXXX" password="XXXXXX";

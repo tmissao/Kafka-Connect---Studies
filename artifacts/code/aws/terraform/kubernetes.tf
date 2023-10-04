@@ -149,7 +149,7 @@ resource "kubernetes_config_map_v1" "kafka_ui_cm" {
     KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME = var.kafka_connect_cluster.name
     KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS = "http://${var.kafka_connect_cluster.name}-connect-api:8083"
     # Although Apicurio API is /apis/registry/v2 it is necessary to use the confluent schema registry compatibility api
-    KAFKA_CLUSTERS_0_SCHEMAREGISTRY = "http://${var.schema_registry.name}:8080/apis/ccompat/v7"
+    KAFKA_CLUSTERS_0_SCHEMAREGISTRY = "http://${var.schema_registry.name}:8080/apis/ccompat/v6"
     DYNAMIC_CONFIG_ENABLED = "true"
   }
 }

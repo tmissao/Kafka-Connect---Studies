@@ -1,0 +1,27 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: elastic-sink-connector
+  labels:
+    strimzi.io/cluster: k8s-connect-cluster
+spec:
+  class: io.confluent.connect.elasticsearch.ElasticsearchSinkConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    topics: institucionaldb.stg_institucional.acq_cofusers,institucionaldb.stg_institucional.acq_mcc
+    transforms: unwrap,extractId
+    transforms.unwrap.type: io.debezium.transforms.ExtractNewRecordState
+    transforms.unwrap.delete.handling.mode: rewrite
+    transforms.extractId.type: org.apache.kafka.connect.transforms.ExtractField$Key
+    transforms.extractId.field: id
+    connection.url: https://<hostname>:443
+    connection.username: <user>
+    connection.password: <password>
+    key.ignore: false
+    schema.ignore: true
+    elastic.security.protocol: SSL
+    elastic.https.ssl.truststore.location: /usr/lib/jvm/java-17-openjdk-17.0.8.0.7-2.el8.x86_64/lib/security/cacerts

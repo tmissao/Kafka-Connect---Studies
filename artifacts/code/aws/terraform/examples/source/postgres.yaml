@@ -1,0 +1,43 @@
+# https://debezium.io/documentation/reference/stable/connectors/postgresql.html
+
+# Required POSTGRES Configuration
+# wal_level | logical
+
+# Required Permission
+# ALTER USER <USERNAME> WITH REPLICATION
+
+# Required Table
+# CREATE TABLE public.debezium_signal (id VARCHAR(42) PRIMARY KEY, type VARCHAR(32) NOT NULL, data VARCHAR(2048) NULL);
+
+# To Perform Manual Snapshot
+# INSERT INTO public.debezium_signal (id, type, data) VALUES('ad-hoc-1', 'execute-snapshot', '{"data-collections": ["public.projects"], "type":"incremental"}');
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: postgres-source-connector
+  labels:
+    strimzi.io/cluster: k8s-connect-cluster
+spec:
+  class: io.debezium.connector.postgresql.PostgresConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    schema.name.adjustment.mode: avro
+    database.hostname: <hostname>
+    database.port: 5432
+    database.user: <username>
+    database.password: <password>
+    database.dbname: <database>
+    schema.include.list: public
+    table.include.list: public.users,public.projects
+    topic.prefix: sonarqube
+    snapshot.mode: initial
+    signal.enabled.channels: source
+    signal.data.collection: public.debezium_signal
+    plugin.name: pgoutput
+    publication.autocreate.mode: filtered
+    slot.name: debezium
