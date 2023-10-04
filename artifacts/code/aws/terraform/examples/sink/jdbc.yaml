@@ -1,0 +1,35 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: jdbc-sink-connector
+  labels:
+    strimzi.io/cluster: k8s-connect-cluster
+spec:
+  class: io.confluent.connect.jdbc.JdbcSinkConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    topics: institucionaldb.stg_institucional.acq_mcc
+    transforms: unwrap,changeTopicName,replaceField,castDelete
+    transforms.unwrap.type: io.debezium.transforms.ExtractNewRecordState
+    transforms.unwrap.delete.handling.mode: rewrite
+    transforms.changeTopicName.type: org.apache.kafka.connect.transforms.RegexRouter
+    transforms.changeTopicName.regex: institucionaldb.stg_institucional.(.*)
+    transforms.changeTopicName.replacement: $1
+    transforms.replaceField.type: org.apache.kafka.connect.transforms.ReplaceField$Value
+    transforms.replaceField.renames: __deleted:deleted
+    transforms.castDelete.type: org.apache.kafka.connect.transforms.Cast$Value
+    transforms.castDelete.spec: deleted:boolean
+    connection.url: jdbc:postgresql://<hostname>:5432/generaldb
+    connection.user: <user>
+    connection.password: <password>
+    dialect.name: PostgreSqlDatabaseDialect
+    insert.mode: upsert
+    pk.mode: record_key
+    pk.fields: id
+    auto.create: true
+    auto.evolve: true
+    table.name.format: ${topic}

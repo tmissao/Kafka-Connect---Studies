@@ -1,0 +1,47 @@
+# https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-connector-properties
+
+# Required MySQL Configuration
+# binlog_row_image | FULL
+# binlog_expire_logs_seconds | 172800
+
+# Required MySQL Table
+# CREATE TABLE stg_institucional.debezium_signal (id VARCHAR(42) PRIMARY KEY, type VARCHAR(32) NOT NULL, data VARCHAR(2048) NULL);
+
+# To Perform Manual Snapshot
+# INSERT INTO stg_institucional.debezium_signal (id, `type`, `data`) VALUES('ad-hoc-1', 'execute-snapshot', '{"data-collections": ["stg_institucional.acq_cofusers"], "type":"incremental"}');
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: mysql-source-connector
+  labels:
+    strimzi.io/cluster: k8s-connect-cluster
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    schema.name.adjustment.mode: avro
+    database.hostname: <hostname> 
+    database.port: 3306
+    database.user: <username>
+    database.password: <password>
+    database.server.id: <uniqueID> 
+    database.include.list: <database>
+    table.include.list: stg_institucional.acq_users,stg_institucional.acq_mcc,stg_institucional.acq_cofusers
+    topic.prefix: institucionaldb
+    snapshot.mode: initial
+    signal.enabled.channels: source
+    signal.data.collection: stg_institucional.debezium_signal
+    schema.history.internal.kafka.bootstrap.servers: <bootstrapservers>
+    schema.history.internal.kafka.topic: schema-changes.stg_institucional
+    schema.history.internal.store.only.captured.tables.ddl: false
+    schema.history.internal.producer.security.protocol: SASL_SSL
+    schema.history.internal.producer.sasl.mechanism: SCRAM-SHA-512
+    schema.history.internal.producer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="XXXXXX" password="XXXXXX";
+    schema.history.internal.consumer.security.protocol: SASL_SSL
+    schema.history.internal.consumer.sasl.mechanism: SCRAM-SHA-512
+    schema.history.internal.consumer.sasl.jaas.config: org.apache.kafka.common.security.scram.ScramLoginModule required username="XXXXXX" password="XXXXXX";

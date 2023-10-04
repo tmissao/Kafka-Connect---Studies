@@ -1,0 +1,30 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: mongo-sink-connector
+  labels:
+    strimzi.io/cluster: k8s-connect-cluster
+spec:
+  class: com.mongodb.kafka.connect.MongoSinkConnector
+  tasksMax: 1
+  pause: false
+  autoRestart:
+    enabled: true
+  config:
+    tasks.max: 1
+    topics: sonarqube.public.users,sonarqube.public.projects
+    transforms: unwrap,renameField
+    transforms.unwrap.type: io.debezium.transforms.ExtractNewRecordState
+    transforms.unwrap.add.fields: table
+    transforms.unwrap.delete.handling.mode: rewrite
+    transforms.renameField.type: org.apache.kafka.connect.transforms.ReplaceField$Key
+    transforms.renameField.renames: uuid:_id
+    connection.uri: mongodb+srv://<user>:<password>@general.jvicg.mongodb.net
+    database: sonarqube
+    collection: default
+    namespace.mapper: com.mongodb.kafka.connect.sink.namespace.mapping.FieldPathNamespaceMapper
+    namespace.mapper.value.collection.field: __table
+    document.id.strategy: com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInKeyStrategy
+    post.processor.chain: com.mongodb.kafka.connect.sink.processor.BlockListValueProjector
+    value.projection.type: BlockList
+    value.projection.list: __table,uuid
