@@ -113,7 +113,7 @@ variable "eks" {
 
 variable "kafka_connect_cluster" {
     default = {
-        name = "k8s-connect-cluster"
+        name = "k8s-connect-cluster2"
     }
 }
 
