@@ -20,6 +20,8 @@ services:
       - "./connectors/mongo-source-sink-connector:/connectors/mongo-source-sink-connector"
       - "./connectors/jdbc-source-sink-connector:/connectors/jdbc-source-sink-connector"
       - "./connectors/azure-blob-sink-connector:/connectors/azure-blob-sink-connector"
+      - "./connectors/cosmos-source-sink-connector:/connectors/cosmos-source-sink-connector"
+      - "./connectors/aws-s3-sink-connector:/connectors/aws-s3-sink-connector"
     ports:
       - 2181:2181                 # Zookeeper
       - 3030:3030                 # Landoop UI

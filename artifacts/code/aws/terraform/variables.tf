@@ -43,7 +43,7 @@ variable "kafka" {
                         max_volume_size = 2000
                         target = 70
                     }
-                    volume_size = 1000
+                    volume_size = 10
                 }
             }
             client_authentication = {
